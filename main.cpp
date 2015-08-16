@@ -29,5 +29,15 @@ int main(int argc, char *argv[]) {
         cout << mTimes.at(i) << ", " << mFrames.at(i) << endl;
     }
 
+    cout << endl << endl;
+    LUA->closeFile();
+    std::vector<std::string> keys =  LUA->getTableKeys("player");
+
+    for(int i =0; i < keys.size(); i++) {
+        cout << keys.at(i) << endl;
+    }
+
+
+
   return 0;
 }

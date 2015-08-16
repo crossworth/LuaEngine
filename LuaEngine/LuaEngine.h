@@ -26,11 +26,15 @@ private:
 public:
     static LuaEngine* getInstance(bool openLibs = true);
     bool loadFile(const std::string &fileName);
+    void closeFile();
+
     void printStack();
     std::string getError();
 
     template<typename T>
     std::vector<T> getVector(const std::string &variableName);
+
+    std::vector<std::string> getTableKeys(const std::string &variableName);
 
     void cleanStack();
 
@@ -40,6 +44,8 @@ public:
     ~LuaEngine();
 
 private:
+    bool isStateEnable(const char* funcName);
+
     bool loadToStack(const std::string &variableName);
 
     template<typename T>
@@ -55,6 +61,10 @@ private:
 
 template<typename T>
 T LuaEngine::get(const std::string &variableName) {
+    if (!isStateEnable(__func__)){
+        return T();
+    }
+
     currentLevel = 0;
     if (loadToStack(variableName) || typeid(T).name() == typeid(std::string).name()) {
         T result = getLastFromStack<T>(variableName);
@@ -66,10 +76,13 @@ T LuaEngine::get(const std::string &variableName) {
     return 0;
 }
 
-
 template<>
 inline std::vector<bool> LuaEngine::getVector<bool>(const std::string &variableName) {
     std::vector<bool> result;
+
+    if (!isStateEnable(__func__)){
+        return result;
+    }
 
     if (loadToStack(variableName) && !lua_isnil(L, -1)) {
         lua_pushnil(L);
@@ -88,6 +101,10 @@ template<>
 inline std::vector<float> LuaEngine::getVector<float>(const std::string &variableName) {
     std::vector<float> result;
 
+    if (!isStateEnable(__func__)){
+        return result;
+    }
+
     if (loadToStack(variableName) && !lua_isnil(L, -1)) {
         lua_pushnil(L);
 
@@ -104,6 +121,10 @@ inline std::vector<float> LuaEngine::getVector<float>(const std::string &variabl
 template<>
 inline std::vector<int> LuaEngine::getVector<int>(const std::string &variableName) {
     std::vector<int> result;
+
+    if (!isStateEnable(__func__)){
+        return result;
+    }
 
     if (loadToStack(variableName) && !lua_isnil(L, -1)) {
         lua_pushnil(L);
@@ -122,6 +143,10 @@ template<>
 inline std::vector<std::string> LuaEngine::getVector<std::string>(const std::string &variableName) {
     std::vector<std::string> result;
 
+    if (!isStateEnable(__func__)){
+        return result;
+    }
+
     if (loadToStack(variableName) && !lua_isnil(L, -1)) {
         lua_pushnil(L);
 
@@ -135,14 +160,18 @@ inline std::vector<std::string> LuaEngine::getVector<std::string>(const std::str
     return result;
 }
 
-
 template<typename T>
 T LuaEngine::getLastFromStack(const std::string &variablename) {
+    isStateEnable(__func__);
     return 0;
 }
 
 template<>
 inline bool LuaEngine::getLastFromStack<bool>(const std::string &variablename) {
+    if (!isStateEnable(__func__)){
+        return false;
+    }
+
     if (!lua_isboolean(L, -1)) {
         std::cout <<  "[LuaEngine::getLastFromStack<bool>] Variable " + variablename + " is not a boolean" << std::endl;
         return false;
@@ -152,6 +181,10 @@ inline bool LuaEngine::getLastFromStack<bool>(const std::string &variablename) {
 
 template<>
 inline int LuaEngine::getLastFromStack<int>(const std::string &variablename) {
+    if (!isStateEnable(__func__)){
+        return 0;
+    }
+
     if (!lua_isinteger(L, -1)) {
         std::cout <<  "[LuaEngine::getLastFromStack<int>] Variable " + variablename + " is not a integer" << std::endl;
         return 0;
@@ -161,6 +194,10 @@ inline int LuaEngine::getLastFromStack<int>(const std::string &variablename) {
 
 template<>
 inline float LuaEngine::getLastFromStack<float>(const std::string &variablename) {
+    if (!isStateEnable(__func__)){
+        return 0.0f;
+    }
+
     if (!lua_isnumber(L, -1)) {
         std::cout <<  "[LuaEngine::getLastFromStack<float>] Variable " + variablename + " is not a float" << std::endl;
         return 0.0f;
@@ -170,6 +207,10 @@ inline float LuaEngine::getLastFromStack<float>(const std::string &variablename)
 
 template<>
 inline std::string LuaEngine::getLastFromStack<std::string>(const std::string &variablename) {
+    if (!isStateEnable(__func__)){
+        return "null";
+    }
+
     if (!lua_isstring(L, -1)) {
         std::cout <<  "[LuaEngine::getLastFromStack<std::string>] Variable " + variablename + " is not a std::string" << std::endl;
         return "null";

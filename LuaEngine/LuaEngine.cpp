@@ -20,6 +20,10 @@ LuaEngine* LuaEngine::getInstance(bool openLibs) {
 }
 
 bool LuaEngine::loadFile(const std::string& fileName) {
+    if (!isStateEnable(__func__)){
+        return false;
+    }
+
     if (luaL_dofile(L, fileName.c_str())) {
         if (lua_isstring(L, -1)) {
             mError = lua_tostring(L, -1);
@@ -29,11 +33,22 @@ bool LuaEngine::loadFile(const std::string& fileName) {
     return true;
 }
 
+void LuaEngine::closeFile() {
+    if (L) {
+        lua_close(L);
+    }
+    L = nullptr;
+}
+
 /**
  * @brief LuaEngine::printStack Print the LuaStack
  * Based on: https://szpg1108.wordpress.com/2013/08/08/understanding-the-lua-stack-pt-2-viewing-the-stack/
  */
 void LuaEngine::printStack() {
+    if (!isStateEnable(__func__)){
+        return;
+    }
+
     std::cout << "-- LuaEngine:printStack --" << std::endl;
 
     int i   = 0;
@@ -65,8 +80,39 @@ std::string LuaEngine::getError() {
     return mError;
 }
 
+/**
+ * @brief LuaEngine::getTableKeys
+ * @param variableName
+ * @return
+ * Based on: https://eliasdaler.wordpress.com/2013/10/20/lua_and_cpp_pt2/
+ */
+std::vector<std::string> LuaEngine::getTableKeys(const std::string& variableName) {
+    if (!isStateEnable(__func__)){
+        return std::vector<std::string>();
+    }
+
+    std::vector<std::string> keys;
+    std::string luaGetKeysScript = "function getKeys(name) s = \"\" for k, v in pairs(_G[name]) do s = s..k..\",\" end return s end";
+
+    luaL_loadstring(L, luaGetKeysScript.c_str());
+    lua_pcall(L,0,0,0);
+    lua_getglobal(L, "getKeys");
+    lua_pushstring(L, variableName.c_str());
+    lua_pcall(L, 1, 1, 0);
+
+    if (lua_isstring(L, -1)) {
+        std::string keysString = lua_tostring(L, -1);
+        keys                   = stringExplode(keysString, ',');
+    }
+
+    return keys;
+}
 
 void LuaEngine::cleanStack() {
+    if (!isStateEnable(__func__)){
+        return;
+    }
+
     int top = lua_gettop(L);
     lua_pop(L, top);
 }
@@ -91,12 +137,24 @@ std::vector<std::string> LuaEngine::stringExplode(const std::string &string, cha
 }
 
 LuaEngine::~LuaEngine() {
-    if (L) {
-        lua_close(L);
+    closeFile();
+}
+
+bool LuaEngine::isStateEnable(const char* funcName) {
+    if (L == nullptr) {
+        std::cout << "[LuaEngine::" + std::string(funcName) + "] Error, Lua State not defined" << std::endl;
+        std::cout << "[LuaEngine::" + std::string(funcName) + "] You have to call getInstance again" << std::endl;
+        std::cout << "[LuaEngine::" + std::string(funcName) + "] before trying load a file" << std::endl;
+        return false;
     }
+    return true;
 }
 
 bool LuaEngine::loadToStack(const std::string& variableName) {
+    if (!isStateEnable(__func__)){
+        false;
+    }
+
     currentLevel = 0;
 
     std::vector<std::string> variables = stringExplode(variableName, '.');
