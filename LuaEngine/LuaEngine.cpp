@@ -38,6 +38,8 @@ void LuaEngine::closeFile() {
         lua_close(L);
     }
     L         = nullptr;
+
+    delete mInstance;
     mInstance = nullptr;
 }
 
@@ -135,10 +137,6 @@ std::vector<std::string> LuaEngine::stringExplode(const std::string &string, cha
     }
 
     return result;
-}
-
-LuaEngine::~LuaEngine() {
-    closeFile();
 }
 
 bool LuaEngine::isStateEnable(const char* funcName) {

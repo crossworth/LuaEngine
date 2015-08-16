@@ -41,8 +41,6 @@ public:
     template<typename T>
     T get(const std::string &variableName);
 
-    ~LuaEngine();
-
 private:
     bool isStateEnable(const char* funcName);
 
