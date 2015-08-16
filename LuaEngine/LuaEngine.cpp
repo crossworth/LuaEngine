@@ -65,6 +65,12 @@ std::string LuaEngine::getError() {
     return mError;
 }
 
+
+void LuaEngine::cleanStack() {
+    int top = lua_gettop(L);
+    lua_pop(L, top);
+}
+
 /**
  * @brief LuaEngine::stringExplode
  * @param string
@@ -91,6 +97,8 @@ LuaEngine::~LuaEngine() {
 }
 
 bool LuaEngine::loadToStack(const std::string& variableName) {
+    currentLevel = 0;
+
     std::vector<std::string> variables = stringExplode(variableName, '.');
 
     for (unsigned int i = 0; i < variables.size(); i++) {

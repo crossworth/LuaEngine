@@ -30,6 +30,11 @@ public:
     std::string getError();
 
     template<typename T>
+    std::vector<T> getVector(const std::string &variableName);
+
+    void cleanStack();
+
+    template<typename T>
     T get(const std::string &variableName);
 
     ~LuaEngine();
@@ -52,11 +57,84 @@ template<typename T>
 T LuaEngine::get(const std::string &variableName) {
     currentLevel = 0;
     if (loadToStack(variableName) || typeid(T).name() == typeid(std::string).name()) {
-        return getLastFromStack<T>(variableName);
+        T result = getLastFromStack<T>(variableName);
+        cleanStack();
+        return result;
     }
 
+    cleanStack();
     return 0;
 }
+
+
+template<>
+inline std::vector<bool> LuaEngine::getVector<bool>(const std::string &variableName) {
+    std::vector<bool> result;
+
+    if (loadToStack(variableName) && !lua_isnil(L, -1)) {
+        lua_pushnil(L);
+
+        while(lua_next(L, -2)) {
+            result.push_back((static_cast<bool>(lua_toboolean(L, -1))));
+            lua_pop(L, 1);
+        }
+    }
+
+    cleanStack();
+    return result;
+}
+
+template<>
+inline std::vector<float> LuaEngine::getVector<float>(const std::string &variableName) {
+    std::vector<float> result;
+
+    if (loadToStack(variableName) && !lua_isnil(L, -1)) {
+        lua_pushnil(L);
+
+        while(lua_next(L, -2)) {
+            result.push_back((static_cast<float>(lua_tonumber(L, -1))));
+            lua_pop(L, 1);
+        }
+    }
+
+    cleanStack();
+    return result;
+}
+
+template<>
+inline std::vector<int> LuaEngine::getVector<int>(const std::string &variableName) {
+    std::vector<int> result;
+
+    if (loadToStack(variableName) && !lua_isnil(L, -1)) {
+        lua_pushnil(L);
+
+        while(lua_next(L, -2)) {
+            result.push_back((static_cast<int>(lua_tointeger(L, -1))));
+            lua_pop(L, 1);
+        }
+    }
+
+    cleanStack();
+    return result;
+}
+
+template<>
+inline std::vector<std::string> LuaEngine::getVector<std::string>(const std::string &variableName) {
+    std::vector<std::string> result;
+
+    if (loadToStack(variableName) && !lua_isnil(L, -1)) {
+        lua_pushnil(L);
+
+        while(lua_next(L, -2)) {
+            result.push_back((std::string(lua_tostring(L, -1))));
+            lua_pop(L, 1);
+        }
+    }
+
+    cleanStack();
+    return result;
+}
+
 
 template<typename T>
 T LuaEngine::getLastFromStack(const std::string &variablename) {
