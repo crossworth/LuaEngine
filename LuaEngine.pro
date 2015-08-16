@@ -13,4 +13,25 @@ CONFIG   -= app_bundle
 
 TEMPLATE = app
 
-SOURCES += main.cpp
+win32 {
+    QMAKE_CXXFLAGS += -std=gnu++1y
+
+    INCLUDEPATH += "C:\Program Files (x86)\lua\include"
+    LIBS += -L"C:\Program Files (x86)\lua" -llua53
+}
+
+macx {
+    INCLUDEPATH += /usr/include
+    LIBS += -L "/usr/local/lib" -llua
+}
+
+SOURCES += main.cpp \
+    LuaEngine/LuaEngine.cpp
+
+HEADERS += \
+    LuaEngine/LuaEngine.h
+
+DISTFILES += \
+    stack.txt
+
+
