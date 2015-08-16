@@ -31,6 +31,10 @@ int main(int argc, char *argv[]) {
 
     cout << endl << endl;
     LUA->closeFile();
+
+    LUA = LuaEngine::getInstance();
+    LUA->loadFile(file);
+
     std::vector<std::string> keys =  LUA->getTableKeys("player");
 
     for(int i =0; i < keys.size(); i++) {

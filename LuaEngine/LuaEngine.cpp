@@ -37,7 +37,8 @@ void LuaEngine::closeFile() {
     if (L) {
         lua_close(L);
     }
-    L = nullptr;
+    L         = nullptr;
+    mInstance = nullptr;
 }
 
 /**
