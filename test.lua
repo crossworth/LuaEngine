@@ -1,3 +1,14 @@
+
+
+
+
+
+x = io.read()
+
+print("")
+print(x)
+print("")
+
 player = {
 	name = "Meu player",
 	sprite =  {
