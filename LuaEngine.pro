@@ -30,6 +30,7 @@ SOURCES += main.cpp \
 HEADERS += \
     LuaEngine/LuaEngine.h
 
-DISTFILES +=
+DISTFILES += \
+    working_code.txt
 
 

@@ -60,6 +60,23 @@ void LuaEngine::registerVariable(const std::string &variableName, const int &val
     if (variableName.find(".") != std::string::npos) {
         std::vector<std::string> variables = stringExplode(variableName, '.');
 
+        lua_getglobal(L, variables.at(0).c_str());
+
+        if (lua_isnil(L, -1)) {
+            lua_pop(L, lua_gettop(L));
+            lua_newtable(L);
+        }
+
+        if (variables.size() > 2) {
+            setTable(1, variables, value);
+        } else {
+            setField(variables.at(1).c_str(), value);
+        }
+
+        lua_setglobal(L, variables.at(0).c_str());
+        return;
+
+
          std::cout << "Registering: " << variableName << std::endl;
 
         // Try load the table on the stack
@@ -180,7 +197,7 @@ void LuaEngine::printStack() {
         return;
     }
 
-    std::cout << "-- LuaEngine:printStack --" << std::endl;
+    std::cout << "-- LuaEngine::printStack --" << std::endl;
 
     int i   = 0;
     int top = lua_gettop(L);
@@ -204,7 +221,7 @@ void LuaEngine::printStack() {
           break;
       }
     }
-    std::cout << "--------------------------" << std::endl;
+    std::cout << "-------------------------" << std::endl;
 }
 
 std::string LuaEngine::getError() {
@@ -253,6 +270,37 @@ LuaEngine::~LuaEngine() {
     L = nullptr;
     delete mInstance;
     mInstance = nullptr;
+}
+
+void LuaEngine::setTable(const unsigned int &ref, const std::vector<std::string> &elements, const int &value) {
+    std::cout << "Elements size: " << elements.size() << " Ref: " << ref << std::endl;
+    printStack();
+
+    lua_pushstring(L, elements.at(ref).c_str());
+    lua_gettable(L, -1);
+    if (lua_isnil(L, -1)) {
+        lua_pop(L, 1);
+        std::cout << "Created table" << std::endl;
+    } else {
+        std::cout << "Not created table" << std::endl;
+    }
+    printStack();
+
+
+    std::cout << elements.at(ref) << std::endl;
+    if (ref == elements.size() - 1) {
+        std::cout << "Set field" << std::endl;
+        setField(elements.at(ref).c_str(), value);
+    } else {
+        std::cout << "Set table" << std::endl;
+        printStack();
+        lua_newtable(L);
+        lua_pushstring(L, elements.at(ref).c_str());
+        setTable(ref + 1, elements, value);
+        lua_settable(L, -3);
+    }
+
+
 }
 
 void LuaEngine::setField(const char* index, const int &value) {
