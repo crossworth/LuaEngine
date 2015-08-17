@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
 //    LUA->registerVariable("o", true);
 
     LUA->registerVariable("window.size.width", 100);
+    LUA->registerVariable("window.size.height", 50);
 
 
     if (!LUA->loadFile(file)) {

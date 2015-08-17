@@ -7,10 +7,9 @@
 QT       += core
 QT       -= gui
 
-TARGET = LuaEngine
+TARGET   = LuaEngine
 CONFIG   += console
 CONFIG   -= app_bundle
-
 TEMPLATE = app
 
 win32 {
@@ -31,7 +30,6 @@ SOURCES += main.cpp \
 HEADERS += \
     LuaEngine/LuaEngine.h
 
-DISTFILES += \
-    stack.txt
+DISTFILES +=
 
 

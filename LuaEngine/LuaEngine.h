@@ -50,6 +50,7 @@ public:
     ~LuaEngine();
 
 private:
+    void setField(const char* index, const int &value);
     bool isStateEnable(const char* funcName);
 
     bool loadToStack(const std::string &variableName);
