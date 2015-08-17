@@ -27,6 +27,8 @@ public:
 
     static LuaEngine* getInstance(bool openLibs = true);
     bool loadFile(const std::string &fileName);
+    void executeCode(const std::string &code);
+
     void cleanState();
 
     void registerVariable(const std::string &variableName, const char* value);

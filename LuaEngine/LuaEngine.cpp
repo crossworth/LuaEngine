@@ -33,6 +33,13 @@ bool LuaEngine::loadFile(const std::string& fileName) {
     return true;
 }
 
+void LuaEngine::executeCode(const std::string& code) {
+    if (!isStateEnable(__func__)){
+        return;
+    }
+    luaL_dostring(L, code.c_str());
+}
+
 void LuaEngine::cleanState() {
     if (L) {
         lua_close(L);
