@@ -2,10 +2,10 @@
 
 using namespace SM;
 
-LuaEngine::LuaEngine(bool openLibs) {
+LuaEngine::LuaEngine(bool openLibs) : _openLibs(openLibs) {
     L = luaL_newstate();
 
-    if (openLibs == true) {
+    if (_openLibs) {
         luaL_openlibs(L);
     }
 }
@@ -33,14 +33,47 @@ bool LuaEngine::loadFile(const std::string& fileName) {
     return true;
 }
 
-void LuaEngine::closeFile() {
+void LuaEngine::cleanState() {
     if (L) {
         lua_close(L);
     }
-    L         = nullptr;
+    L = luaL_newstate();
 
-    delete mInstance;
-    mInstance = nullptr;
+    if (_openLibs) {
+        luaL_openlibs(L);
+    }
+}
+
+void LuaEngine::registerVariable(const std::string &variableName, const char* value) {
+    if (!isStateEnable(__func__)){
+        return;
+    }
+    lua_pushstring(L, value);
+    lua_setglobal(L, variableName.c_str());
+}
+
+void LuaEngine::registerVariable(const std::string &variableName, const int &value) {
+    if (!isStateEnable(__func__)){
+        return;
+    }
+    lua_pushinteger(L, value);
+    lua_setglobal(L, variableName.c_str());
+}
+
+void LuaEngine::registerVariable(const std::string &variableName, const float &value) {
+    if (!isStateEnable(__func__)){
+        return;
+    }
+    lua_pushnumber(L, value);
+    lua_setglobal(L, variableName.c_str());
+}
+
+void LuaEngine::registerVariable(const std::string &variableName, const bool &value) {
+    if (!isStateEnable(__func__)){
+        return;
+    }
+    lua_pushboolean(L, value);
+    lua_setglobal(L, variableName.c_str());
 }
 
 /**
@@ -120,6 +153,13 @@ void LuaEngine::cleanStack() {
     lua_pop(L, top);
 }
 
+LuaEngine::~LuaEngine() {
+    lua_close(L);
+    L = nullptr;
+    delete mInstance;
+    mInstance = nullptr;
+}
+
 /**
  * @brief LuaEngine::stringExplode
  * @param string
@@ -141,9 +181,7 @@ std::vector<std::string> LuaEngine::stringExplode(const std::string &string, cha
 
 bool LuaEngine::isStateEnable(const char* funcName) {
     if (L == nullptr) {
-        std::cout << "[LuaEngine::" + std::string(funcName) + "] Error, Lua State not defined" << std::endl;
-        std::cout << "[LuaEngine::" + std::string(funcName) + "] You have to call getInstance again" << std::endl;
-        std::cout << "[LuaEngine::" + std::string(funcName) + "] before trying load a file" << std::endl;
+        std::cout << "[LuaEngine::" + std::string(funcName) + "] Lua State not initialized" << std::endl;
         return false;
     }
     return true;
@@ -151,7 +189,7 @@ bool LuaEngine::isStateEnable(const char* funcName) {
 
 bool LuaEngine::loadToStack(const std::string& variableName) {
     if (!isStateEnable(__func__)){
-        false;
+        return false;
     }
 
     currentLevel = 0;

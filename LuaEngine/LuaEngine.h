@@ -24,9 +24,15 @@ private:
     static LuaEngine* mInstance;
     LuaEngine(bool openLibs);
 public:
+
     static LuaEngine* getInstance(bool openLibs = true);
     bool loadFile(const std::string &fileName);
-    void closeFile();
+    void cleanState();
+
+    void registerVariable(const std::string &variableName, const char* value);
+    void registerVariable(const std::string &variableName, const int &value);
+    void registerVariable(const std::string &variableName, const float &value);
+    void registerVariable(const std::string &variableName, const bool &value);
 
     void printStack();
     std::string getError();
@@ -41,6 +47,8 @@ public:
     template<typename T>
     T get(const std::string &variableName);
 
+    ~LuaEngine();
+
 private:
     bool isStateEnable(const char* funcName);
 
@@ -54,6 +62,7 @@ private:
     lua_State *L;
     std::string mError;
     int currentLevel;
+    bool _openLibs;
 
 };
 
