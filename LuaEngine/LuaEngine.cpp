@@ -56,8 +56,43 @@ void LuaEngine::registerVariable(const std::string &variableName, const int &val
     if (!isStateEnable(__func__)){
         return;
     }
-    lua_pushinteger(L, value);
-    lua_setglobal(L, variableName.c_str());
+
+    if (variableName.find(".") != std::string::npos) {
+        std::vector<std::string> variables = stringExplode(variableName, '.');
+
+//        for (int i = 0; i < variables.size() - 2; i++) {
+//            lua_newtable(L);
+//            lua_pushstring(L, variables.at(i).c_str());
+//            lua_settable(L,-3);
+//        }
+
+
+//        lua_newtable(L);
+//        lua_pushstring(L, "size");
+//        lua_pushnumber(L, 100);
+
+//        printStack();
+//        lua_settable(L, -3);
+//        printStack();
+
+//        lua_newtable(L);
+//        lua_pushstring(L, variables.at(2).c_str());
+//
+//        lua_settable(L,-3);
+        lua_setglobal(L, variables.at(0).c_str());
+        printStack();
+
+    } else {
+        lua_pushinteger(L, value);
+        lua_setglobal(L, variableName.c_str());
+    }
+
+    //    lua_newtable(l);
+    //    lua_pushnumber(l, view.x);
+    //    lua_setfield(l, -2, "x");
+    //    lua_pushnumber(l, view.y);
+    //    lua_setfield(l, -2, "y");
+
 }
 
 void LuaEngine::registerVariable(const std::string &variableName, const float &value) {
