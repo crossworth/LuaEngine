@@ -37,6 +37,8 @@ public:
     void registerVariable(const std::string &variableName, const bool &value);
 
     void printStack();
+    void printGlobalTable(const std::string &tableName);
+
     std::string getError();
 
     template<typename T>
@@ -52,7 +54,6 @@ public:
     ~LuaEngine();
 
 private:
-    void setTable(const unsigned int &ref, const std::vector<std::string> &elements, const int &value);
     void setField(const char* index, const int &value);
     bool isStateEnable(const char* funcName);
 

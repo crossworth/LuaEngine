@@ -8,7 +8,11 @@ int main(int argc, char *argv[]) {
 
     LuaEngine* LUA = LuaEngine::getInstance();
 
-    LUA->executeCode("print(10)");
+    LUA->registerVariable("width", 100);
+    LUA->registerVariable("height", 50);
+
+    LUA->executeCode("print(width)");
+    LUA->executeCode("print(height)");
 
 
   return 0;
