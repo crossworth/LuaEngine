@@ -31,6 +31,7 @@ HEADERS += \
     LuaEngine/LuaEngine.h
 
 DISTFILES += \
-    working_code.txt
+    working_code.txt \
+    exemples.txt
 
 

@@ -33,6 +33,13 @@ bool LuaEngine::loadFile(const std::string& fileName) {
     return true;
 }
 
+void LuaEngine::executeCode(const std::string& code) {
+    if (!isStateEnable(__func__)){
+        return;
+    }
+    luaL_dostring(L, code.c_str());
+}
+
 void LuaEngine::cleanState() {
     if (L) {
         lua_close(L);
@@ -57,119 +64,9 @@ void LuaEngine::registerVariable(const std::string &variableName, const int &val
         return;
     }
 
-    if (variableName.find(".") != std::string::npos) {
-        std::vector<std::string> variables = stringExplode(variableName, '.');
+    lua_pushinteger(L, value);
+    lua_setglobal(L, variableName.c_str());
 
-        lua_getglobal(L, variables.at(0).c_str());
-
-        if (lua_isnil(L, -1)) {
-            lua_pop(L, lua_gettop(L));
-            lua_newtable(L);
-        }
-
-        if (variables.size() > 2) {
-            setTable(1, variables, value);
-        } else {
-            setField(variables.at(1).c_str(), value);
-        }
-
-        lua_setglobal(L, variables.at(0).c_str());
-        return;
-
-
-         std::cout << "Registering: " << variableName << std::endl;
-
-        // Try load the table on the stack
-        lua_getglobal(L, variables.at(0).c_str());
-
-        // If already defined it will be on top of stack
-        // if it's not definied we just verify if it's nill and pop it out
-        bool hasGlobalSet = false;
-
-        if (lua_isnil(L, -1)) {
-            lua_pop(L, lua_gettop(L));
-        } else {
-            hasGlobalSet = true;
-            std::cout << "has global now" << std::endl;
-        }
-        printStack();
-
-//        // A lot of work, I'll have to acess each member and set or reset it's value
-//        for (unsigned int i = 1; i < variables.size(); i++) {
-
-//            if (i == variables.size() - 1) {
-//                lua_getfield(L, -1, variables.at(i).c_str());
-
-//                if (lua_isnil(L, -1)) {
-//                    std::cout << "nill" << std::endl;
-//                    printStack();
-//                    lua_pop(L, 1);
-//                    lua_newtable(L);
-//                } else {
-//                    std::cout << "not nill" << std::endl;
-//                    printStack();
-//                }
-
-//                lua_pushstring(L, variables.at(i).c_str());
-//                lua_pushnumber(L, value);
-//            } else {
-//                if (i == 1 && hasGlobalSet) {
-//                    lua_getfield(L, -1, variables.at(i).c_str());
-//                } else {
-//                    lua_newtable(L);
-//                }
-//                lua_pushstring(L, variables.at(i).c_str());
-//            }
-//        }
-
-//        for (unsigned int i = 1; i < variables.size(); i++) {
-//            lua_settable(L, -3);
-//        }
-
-        if (hasGlobalSet) {
-            std::cout << "Get table if has global" << std::endl;
-            printStack();
-        } else {
-            lua_newtable(L);
-            std::cout << "Create table size" << std::endl;
-            printStack();
-        }
-
-        lua_pushstring(L, variables.at(1).c_str());
-        lua_gettable(L, -1);
-
-        if (lua_isnil(L, -1)) {
-
-            lua_pop(L, 1);
-            lua_newtable(L);
-            std::cout << "Create table height" << std::endl;
-            printStack();
-        }
-
-//        lua_pushstring(L, variables.at(1).c_str());
-//        lua_pushnumber(L, value);
-//        lua_settable(L, -3);
-
-
-
-        std::cout << "Push table into stack" << std::endl;
-        printStack();
-        setField(variables.at(2).c_str(), value);
-        lua_settable(L, -3);
-
-//        if (lua_isnil(L, -1)) {
-//            std::cout << "is Nill" << std::endl;
-//            lua_pop(L, 1);
-//            lua_newtable(L);
-//        }
-
-
-        lua_setglobal(L, variables.at(0).c_str());
-
-    } else {
-        lua_pushinteger(L, value);
-        lua_setglobal(L, variableName.c_str());
-    }
 }
 
 void LuaEngine::registerVariable(const std::string &variableName, const float &value) {
@@ -186,6 +83,12 @@ void LuaEngine::registerVariable(const std::string &variableName, const bool &va
     }
     lua_pushboolean(L, value);
     lua_setglobal(L, variableName.c_str());
+}
+
+void LuaEngine::setField(const char* index, const int &value) {
+    lua_pushstring(L, index);
+    lua_pushnumber(L, value);
+    lua_settable(L, -3);
 }
 
 /**
@@ -224,6 +127,17 @@ void LuaEngine::printStack() {
     std::cout << "-------------------------" << std::endl;
 }
 
+void LuaEngine::printGlobalTable(const std::string &tableName) {
+    std::string injectionCode = "function print_table (tbl, indent) if not indent then indent = 0 end for k, v in pairs(tbl) do formatting = string.rep(\"  \", indent) .. k .. \": \" if type(v) == \"table\" then print(formatting) print_table(v, indent+1) elseif type(v) == 'boolean' then print(formatting .. tostring(v)) else print(formatting .. v) end end end";
+    luaL_loadstring(L, injectionCode.c_str());
+    lua_pcall(L, 0, 0, 0);
+    lua_getglobal(L, "print_table");
+    lua_getglobal(L, tableName.c_str());
+    lua_pushnumber(L, 1);
+    lua_pcall(L, 2, 0, 0);
+
+}
+
 std::string LuaEngine::getError() {
     return mError;
 }
@@ -243,7 +157,7 @@ std::vector<std::string> LuaEngine::getTableKeys(const std::string& variableName
     std::string luaGetKeysScript = "function getKeys(name) s = \"\" for k, v in pairs(_G[name]) do s = s..k..\",\" end return s end";
 
     luaL_loadstring(L, luaGetKeysScript.c_str());
-    lua_pcall(L,0,0,0);
+    lua_pcall(L, 0, 0, 0);
     lua_getglobal(L, "getKeys");
     lua_pushstring(L, variableName.c_str());
     lua_pcall(L, 1, 1, 0);
@@ -272,6 +186,7 @@ LuaEngine::~LuaEngine() {
     mInstance = nullptr;
 }
 
+<<<<<<< HEAD
 void LuaEngine::setTable(const unsigned int &ref, const std::vector<std::string> &elements, const int &value) {
     std::cout << "Elements size: " << elements.size() << " Ref: " << ref << std::endl;
 
@@ -321,6 +236,8 @@ void LuaEngine::setField(const char* index, const int &value) {
     lua_settable(L, -3);
 }
 
+=======
+>>>>>>> origin/master
 /**
  * @brief LuaEngine::stringExplode
  * @param string

@@ -27,6 +27,8 @@ public:
 
     static LuaEngine* getInstance(bool openLibs = true);
     bool loadFile(const std::string &fileName);
+    void executeCode(const std::string &code);
+
     void cleanState();
 
     void registerVariable(const std::string &variableName, const char* value);
@@ -35,6 +37,8 @@ public:
     void registerVariable(const std::string &variableName, const bool &value);
 
     void printStack();
+    void printGlobalTable(const std::string &tableName);
+
     std::string getError();
 
     template<typename T>
@@ -50,7 +54,6 @@ public:
     ~LuaEngine();
 
 private:
-    void setTable(const unsigned int &ref, const std::vector<std::string> &elements, const int &value);
     void setField(const char* index, const int &value);
     bool isStateEnable(const char* funcName);
 

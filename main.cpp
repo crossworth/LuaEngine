@@ -6,9 +6,9 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    string file = "test.lua";
     LuaEngine* LUA = LuaEngine::getInstance();
 
+<<<<<<< HEAD
     LUA->registerVariable("var1", "string");
     LUA->registerVariable("var2", 10);
     LUA->registerVariable("var3", 100.5f);
@@ -44,4 +44,14 @@ int main(int argc, char *argv[]) {
     }
 
     return 0;
+=======
+    LUA->registerVariable("width", 100);
+    LUA->registerVariable("height", 50);
+
+    LUA->executeCode("print(width)");
+    LUA->executeCode("print(height)");
+
+
+  return 0;
+>>>>>>> origin/master
 }
