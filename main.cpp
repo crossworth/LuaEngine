@@ -9,21 +9,16 @@ int main(int argc, char *argv[]) {
     string file = "test.lua";
     LuaEngine* LUA = LuaEngine::getInstance();
 
-//    LUA->registerVariable("x", "string");
-//    LUA->registerVariable("p", 10);
-//    LUA->registerVariable("t", 100.5f);
-//    LUA->registerVariable("o", true);
-
-    LUA->registerVariable("window.size.width", 100);
-    LUA->registerVariable("window.size.height", 50);
+    LUA->registerVariable("var1", "string");
+    LUA->registerVariable("var2", 10);
+    LUA->registerVariable("var3", 100.5f);
+    LUA->registerVariable("var4", true);
 
 
     if (!LUA->loadFile(file)) {
         cout << "Arquivo não foi carregado" << endl;
         cout << LUA->getError() << endl;
     }
-
-    return 0;
 
     cout << LUA->get<int>("player.sprite.running.frameCounter") << endl;
     cout << LUA->get<int>("player.sprite.running.frame1.time") << endl;
@@ -48,16 +43,5 @@ int main(int argc, char *argv[]) {
         cout << keys.at(i) << endl;
     }
 
-
-//    class player {
-//    public:
-//        int hp;
-//        int getHP();
-//    };
-
-//    LUA->getInstance()->registerFunction()
-
-
-
-  return 0;
+    return 0;
 }

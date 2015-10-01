@@ -1,8 +1,3 @@
-
-
-
-
-
 x = io.read()
 
 print("")
