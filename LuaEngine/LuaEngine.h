@@ -17,7 +17,6 @@ extern "C" {
 #define nullptr 0
 #endif
 
-namespace SM {
 
 class LuaEngine {
 private:
@@ -29,7 +28,7 @@ public:
     bool loadFile(const std::string &fileName);
     void executeCode(const std::string &code);
 
-    void cleanState();
+    void clearState();
 
     void registerVariable(const std::string &variableName, const char* value);
     void registerVariable(const std::string &variableName, const int &value);
@@ -46,7 +45,7 @@ public:
 
     std::vector<std::string> getTableKeys(const std::string &variableName);
 
-    void cleanStack();
+    void clearStack();
 
     template<typename T>
     T get(const std::string &variableName);
@@ -80,11 +79,11 @@ T LuaEngine::get(const std::string &variableName) {
     currentLevel = 0;
     if (loadToStack(variableName) || typeid(T).name() == typeid(std::string).name()) {
         T result = getLastFromStack<T>(variableName);
-        cleanStack();
+        clearStack();
         return result;
     }
 
-    cleanStack();
+    clearStack();
     return 0;
 }
 
@@ -105,7 +104,7 @@ inline std::vector<bool> LuaEngine::getVector<bool>(const std::string &variableN
         }
     }
 
-    cleanStack();
+    clearStack();
     return result;
 }
 
@@ -126,7 +125,7 @@ inline std::vector<float> LuaEngine::getVector<float>(const std::string &variabl
         }
     }
 
-    cleanStack();
+    clearStack();
     return result;
 }
 
@@ -147,7 +146,7 @@ inline std::vector<int> LuaEngine::getVector<int>(const std::string &variableNam
         }
     }
 
-    cleanStack();
+    clearStack();
     return result;
 }
 
@@ -168,7 +167,7 @@ inline std::vector<std::string> LuaEngine::getVector<std::string>(const std::str
         }
     }
 
-    cleanStack();
+    clearStack();
     return result;
 }
 
@@ -198,7 +197,7 @@ inline int LuaEngine::getLastFromStack<int>(const std::string &variablename) {
     }
 
     if (!lua_isinteger(L, -1)) {
-        std::cout <<  "[LuaEngine::getLastFromStack<int>] Variable " + variablename + " is not a integer" << std::endl;
+        std::cout <<  "[LuaEngine::getLastFromStack<int>] Variable " + variablename + " is not an integer" << std::endl;
         return 0;
     }
     return static_cast<int>(lua_tointeger(L, -1));
@@ -229,8 +228,6 @@ inline std::string LuaEngine::getLastFromStack<std::string>(const std::string &v
     }
 
     return std::string(lua_tostring(L, -1));
-}
-
 }
 
 #endif // LUAENGINE_H

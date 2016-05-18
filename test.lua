@@ -1,7 +1,8 @@
-x = io.read()
+-- x = io.read()
+-- print(x)
+
 
 print("")
-print(x)
 print("")
 
 player = {

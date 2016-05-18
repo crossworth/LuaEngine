@@ -15,8 +15,8 @@ TEMPLATE = app
 win32 {
     QMAKE_CXXFLAGS += -std=gnu++1y
 
-    INCLUDEPATH += "C:\Program Files (x86)\lua\include"
-    LIBS += -L"C:\Program Files (x86)\lua" -llua53
+    INCLUDEPATH += "D:\Deps\lua-5.3.2\src"
+    LIBS += -L"D:\Deps\lua-5.3.2\lib" -llua53
 }
 
 macx {
@@ -29,9 +29,5 @@ SOURCES += main.cpp \
 
 HEADERS += \
     LuaEngine/LuaEngine.h
-
-DISTFILES += \
-    working_code.txt \
-    exemples.txt
 
 

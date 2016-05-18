@@ -1,6 +1,5 @@
 #include "LuaEngine.h"
 
-using namespace SM;
 
 LuaEngine::LuaEngine(bool openLibs) : _openLibs(openLibs) {
     L = luaL_newstate();
@@ -24,7 +23,7 @@ bool LuaEngine::loadFile(const std::string& fileName) {
         return false;
     }
 
-    if (luaL_dofile(L, fileName.c_str())) {
+    if (luaL_dofile(L, fileName.c_str()) == 1) {
         if (lua_isstring(L, -1)) {
             mError = lua_tostring(L, -1);
         }
@@ -40,7 +39,7 @@ void LuaEngine::executeCode(const std::string& code) {
     luaL_dostring(L, code.c_str());
 }
 
-void LuaEngine::cleanState() {
+void LuaEngine::clearState() {
     if (L) {
         lua_close(L);
     }
@@ -170,7 +169,7 @@ std::vector<std::string> LuaEngine::getTableKeys(const std::string& variableName
     return keys;
 }
 
-void LuaEngine::cleanStack() {
+void LuaEngine::clearStack() {
     if (!isStateEnable(__func__)){
         return;
     }
@@ -186,58 +185,49 @@ LuaEngine::~LuaEngine() {
     mInstance = nullptr;
 }
 
-<<<<<<< HEAD
-void LuaEngine::setTable(const unsigned int &ref, const std::vector<std::string> &elements, const int &value) {
-    std::cout << "Elements size: " << elements.size() << " Ref: " << ref << std::endl;
+
+// void LuaEngine::setTable(const unsigned int &ref, const std::vector<std::string> &elements, const int &value) {
+//     std::cout << "Elements size: " << elements.size() << " Ref: " << ref << std::endl;
 
 
-//    lua_pushstring(L, elements.at(ref).c_str());
-//    lua_newtable(L);
-//    lua_gettable(L, -1);
-//    if (lua_isnil(L, -1)) {
-//        lua_pop(L, 1);
-//        std::cout << "Created table" << std::endl;
-//    } else {
-//        std::cout << "Not created table" << std::endl;
-//    }
+// //    lua_pushstring(L, elements.at(ref).c_str());
+// //    lua_newtable(L);
+// //    lua_gettable(L, -1);
+// //    if (lua_isnil(L, -1)) {
+// //        lua_pop(L, 1);
+// //        std::cout << "Created table" << std::endl;
+// //    } else {
+// //        std::cout << "Not created table" << std::endl;
+// //    }
 
 
-    std::cout << elements.at(ref) << std::endl;
-    if (ref == elements.size() - 1) {
-        std::cout << "Set field" << std::endl;
-        setField(elements.at(ref).c_str(), value);
-    } else {
-        std::cout << "Set table" << std::endl;
+//     std::cout << elements.at(ref) << std::endl;
+//     if (ref == elements.size() - 1) {
+//         std::cout << "Set field" << std::endl;
+//         setField(elements.at(ref).c_str(), value);
+//     } else {
+//         std::cout << "Set table" << std::endl;
 
-        printStack();
-        lua_getfield(L, -1, elements.at(ref).c_str());
-        printStack();
+//         printStack();
+//         lua_getfield(L, -1, elements.at(ref).c_str());
+//         printStack();
 
-        if (lua_isnil(L, -1)) {
-            lua_pop(L, 1);
+//         if (lua_isnil(L, -1)) {
+//             lua_pop(L, 1);
 
-        }
+//         }
 
-        lua_pushstring(L, elements.at(ref).c_str());
-        lua_newtable(L);
+//         lua_pushstring(L, elements.at(ref).c_str());
+//         lua_newtable(L);
 
-        printStack();
-        setTable(ref + 1, elements, value);
+//         printStack();
+//         setTable(ref + 1, elements, value);
 
-        lua_settable(L, -3);
-    }
+//         lua_settable(L, -3);
+//     }
+// }
 
 
-}
-
-void LuaEngine::setField(const char* index, const int &value) {
-    lua_pushstring(L, index);
-    lua_pushnumber(L, value);
-    lua_settable(L, -3);
-}
-
-=======
->>>>>>> origin/master
 /**
  * @brief LuaEngine::stringExplode
  * @param string
